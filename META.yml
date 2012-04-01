@@ -38,4 +38,4 @@ resources:
   homepage: https://github.com/augensalat/webservice-xing
   license: http://dev.perl.org/licenses/
   repository: git://github.com/augensalat/webservice-xing.git
-version: 0.001
+version: 0.002

@@ -13,7 +13,6 @@ inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/WebService/XING.pm
-lib/WebService/XING/Error.pm
 lib/WebService/XING/Function.pm
 lib/WebService/XING/Function/Parameter.pm
 lib/WebService/XING/Response.pm
@@ -25,7 +24,6 @@ script/xing
 t/00-load.t
 t/01-new.t
 t/02-response.t
-t/03-error.t
 t/04-function.t
 t/pod-coverage.t
 t/pod.t
