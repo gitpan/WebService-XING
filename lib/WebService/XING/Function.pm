@@ -28,13 +28,13 @@ sub _build_params {
     }
 
     for (@{$self->params_in}) {
-        my ($flag, $key, $default) = /^([\@\!\?]?)(\w+)(?:=(.*))?$/;
+        my ($flag, $key, $default) = /^([\@\!\?]*)(\w+)(?:=(.*))?$/;
         my @a;
 
-        given ($flag) {
-            when ('@') { @a = (is_list => 1) }
-            when ('!') { @a = (is_required => 1) }
-            when ('?') { @a = (is_boolean => 1) }
+        for (split '', $flag) {
+            when ('@') { push @a, is_list => 1 }
+            when ('!') { push @a, is_required => 1 }
+            when ('?') { push @a, is_boolean => 1 }
         }
         push @p, WebService::XING::Function::Parameter->new(
             name => $key,
@@ -71,7 +71,7 @@ WebService::XING::Function - XING API Function Class
 
 An object of the C<WebService::XING::Function> class represents an
 abstract description of a XING API function. It is usually created and
-returned by L<XING::WebService/function>.
+returned by L<WebService::XING/function>.
 
 =head1 OVERLOADING
 
