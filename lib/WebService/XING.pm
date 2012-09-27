@@ -14,7 +14,7 @@ use URI;
 use WebService::XING::Function;
 use WebService::XING::Response;
 
-our $VERSION = '0.020';
+our $VERSION = '0.030';
 
 our @CARP_NOT = qw(Mo::builder Mo::chain Mo::is Mo::required);
 @Carp::Internal{qw(Mo::builder Mo::chain Mo::is Mo::required)} = (1, 1, 1, 1);
@@ -32,15 +32,35 @@ my @FUNCTAB = (
     find_by_emails =>
         [GET => '/v1/users/find_by_emails', '@!emails', '@user_fields'],
 
+    # Jobs
+    get_job_posting =>
+        [GET => '/v1/jobs/:id', '@user_fields'],
+    find_jobs =>
+        [GET => '/v1/jobs/find', '!query', 'limit', 'location', 'offset', '@user_fields'],
+    list_job_recommendations =>
+        [GET => '/v1/users/:user_id/jobs/recommendations', 'limit', 'offset', '@user_fields'],
+
     # Messages
     list_conversations =>
         [GET => '/v1/users/:user_id/conversations', 'limit', 'offset', '@user_fields', 'with_latest_messages'],
+    create_conversation =>
+        [POST => '/v1/users/:user_id/conversations', '!content', '@!recipient_ids', '!subject'],
     get_conversation =>
         [GET => '/v1/users/:user_id/conversations/:id', '@user_fields', 'with_latest_messages'],
+    mark_conversation_read =>
+        [PUT => '/v1/users/:user_id/conversations/:id/read'],
     list_conversation_messages =>
         [GET => '/v1/users/:user_id/conversations/:conversation_id/messages', 'limit', 'offset', '@user_fields'],
     get_conversation_message =>
         [GET => '/v1/users/:user_id/conversations/:conversation_id/messages/:id', '@user_fields'],
+    mark_conversation_message_read =>
+        [PUT => '/v1/users/:user_id/conversations/:conversation_id/messages/:id/read'],
+    mark_conversation_message_unread =>
+        [DELETE => '/v1/users/:user_id/conversations/:conversation_id/messages/:id/read'],
+    create_conversation_message =>
+        [POST => '/v1/users/:user_id/conversations/:conversation_id/messages', '!content'],
+    delete_conversation =>
+        [DELETE => '/v1/users/:user_id/conversations/:id'],
 
     # Status Messages
     create_status_message =>
@@ -55,6 +75,8 @@ my @FUNCTAB = (
     # Contacts
     list_contacts =>
         [GET => '/v1/users/:user_id/contacts', 'limit', 'offset', 'order_by', '@user_fields'],
+    list_contact_tags =>
+        [GET => '/v1/users/:user_id/contacts/:contact_id/tags'],
     list_shared_contacts =>
         [GET => '/v1/users/:user_id/contacts/shared', 'limit', 'offset', 'order_by', '@user_fields'],
 
@@ -890,6 +912,32 @@ See L<https://dev.xing.com/docs/get/users/:id>
 
 See L<https://dev.xing.com/docs/get/users/find_by_emails>
 
+=head2 get_job_posting
+
+  $res = $xing->get_job_posting(
+    id => $id, user_fields => \@user_fields
+  );
+
+See L<https://dev.xing.com/docs/get/jobs/:id>
+
+=head2 find_jobs
+
+  $res = $xing->find_jobs(
+    query => $query, limit => $limit, location => $location,
+    offset => $offset, user_fields => \@user_fields
+  );
+
+See L<https://dev.xing.com/docs/get/jobs/find>
+
+=head2 list_job_recommendations
+
+  $res = $xing->list_job_recommendations(
+    user_id => $user_id, limit => $limit, offset => $offset,
+    user_fields => \@user_fields
+  );
+
+See L<https://dev.xing.com/docs/get/users/:user_id/jobs/recommendations>
+
 =head2 list_conversations
 
   $res = $xing->list_conversations(
@@ -899,6 +947,15 @@ See L<https://dev.xing.com/docs/get/users/find_by_emails>
 
 See L<https://dev.xing.com/docs/get/users/:user_id/conversations>
 
+=head2 create_conversation
+
+  $res = $xing->create_conversation(
+    user_id => $user_id, content => $content, subject => $subject,
+    recipient_ids => \@recipient_ids
+  );
+
+See L<https://dev.xing.com/docs/post/users/:user_id/conversations>
+
 =head2 get_conversation
 
   $res = $xing->get_conversation(
@@ -907,6 +964,14 @@ See L<https://dev.xing.com/docs/get/users/:user_id/conversations>
   );
 
 See L<https://dev.xing.com/docs/get/users/:user_id/conversations/:id>
+
+=head2 mark_conversation_read
+
+  $res = $xing->mark_conversation_read(
+    user_id => $user_id, id => $id
+  );
+
+See L<https://dev.xing.com/docs/put/users/:user_id/conversations/:id/read>
 
 =head2 list_conversation_messages
 
@@ -925,6 +990,41 @@ See L<https://dev.xing.com/docs/get/users/:user_id/conversations/:conversation_i
   );
 
 See L<https://dev.xing.com/docs/get/users/:user_id/conversations/:conversation_id/messages/:id>
+
+=head2 mark_conversation_message_read
+
+  $res = $xing->mark_conversation_message_read(
+    user_id => $user_id, conversation_id => $conversation_id,
+    id => $message_id
+  );
+
+See L<https://dev.xing.com/docs/put/users/:user_id/conversations/:conversation_id/messages/:id/read>
+
+=head2 mark_conversation_message_unread
+
+  $res = $xing->mark_conversation_message_unread(
+    user_id => $user_id, conversation_id => $conversation_id,
+    id => $message_id
+  );
+
+See L<https://dev.xing.com/docs/delete/users/:user_id/conversations/:conversation_id/messages/:id/read>
+
+=head2 create_conversation_message
+
+  $res = $xing->create_conversation_message(
+    user_id => $user_id, conversation_id => $conversation_id,
+    content => $content
+  );
+
+See L<https://dev.xing.com/docs/delete/users/:user_id/conversations/:conversation_id/messages/:id/read>
+
+=head2 delete_conversation
+
+  $res = $xing->delete_conversation(
+    user_id => $user_id, id => $conversation_id
+  );
+
+See L<https://dev.xing.com/docs/delete/users/:user_id/conversations/:id>
 
 =head2 create_status_message
 
@@ -955,6 +1055,14 @@ See L<https://dev.xing.com/docs/put/users/:user_id/profile_message>
   );
 
 See L<https://dev.xing.com/docs/get/users/:user_id/contacts>
+
+=head2 list_contact_tags
+
+  $res = $xing->list_contacts(
+    user_id => $user_id, contact_id => $contact_id
+  );
+
+See L<https://dev.xing.com/docs/get/users/:user_id/contacts/:contact_id/tags>
 
 =head2 list_shared_contacts
 
